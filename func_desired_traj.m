@@ -1,3 +1,4 @@
+%这段代码定义了一个名为 func_desired_traj 的函数，用于生成双臂机器人在给定轨迹类型下的期望轨迹。
 function [control_infor, time_infor] = func_desired_traj(traj_type, bridge_type, time_infor, control_infor, properties, dt, plot_movie, traj_frequency)
 
 plot_figures_inside = 0; 
