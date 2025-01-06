@@ -1,3 +1,4 @@
+%这段代码定义了一个名为 func_train_val 的函数，用于训练和验证双臂机器人控制系统的性能。
 %定义函数 func_train_val，接收输入参数 n（网络大小），定义函数 func_train_val，接收输入参数 n（网络大小）、train_t（训练时间）、reset_t（重置时间）、noise_level（噪声水平）和 bias（偏置）。
 %返回值包括不同轨迹类型的均方根误差（RMSE）和训练时间
 function [rmse_l, rmse_c, rmse_m, rmse_i, t] = func_train_val(n, train_t, reset_t, noise_level, bias)
