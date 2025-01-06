@@ -6,7 +6,7 @@ addpath('./tools/')
 
 load('./save_file/all_traj_06282022.mat')
 
-% choose the reference trajectory
+% 选择参考轨迹类型
 % traj_type = 'lorenz';
 traj_type = 'circle';
 % traj_type = 'mg17';
@@ -25,7 +25,7 @@ traj_type = 'circle';
 % traj_type = 'lorenz96';
 
 % traj_frequency = 75;
-
+%设置参数和初始值
 time_infor.val_length=200000;
 bridge_type = 'cubic';
 failure.type = 'none';
@@ -39,7 +39,7 @@ idx = 0;
 
 plot_val_and_update = 1;
 
-% let the well-trained machine to follow the given reference.
+% 调用 val_and_update 函数，让训练好的机器跟随给定的参考轨迹。
 val_and_update
 
 
