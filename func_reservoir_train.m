@@ -1,3 +1,4 @@
+%这段代码定义了一个名为 func_reservoir_train 的函数，用于训练双臂机器人的库计算。具体来说，这个函数通过给定的输入和输出数据训练库计算。
 function [Wout, r_end] = func_reservoir_train(data_reservoir, time_infor, input_infor, res_infor, dim_in, dim_out)
 rng('shuffle');
 % train the reservoir computing by given the input and output.
