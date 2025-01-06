@@ -1,3 +1,4 @@
+%这段代码的主要目的是评估双臂机器人控制系统在不同偏置值（bias）下的性能。
 clear all
 close all
 clc
