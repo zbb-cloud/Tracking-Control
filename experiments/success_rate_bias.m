@@ -3,44 +3,50 @@ close all
 clc
 
 addpath('./tools/')
-
+%定义偏置值集合，范围从0到3，共7个值。
 bias_set = linspace(0, 3, 7);
-
+%获取当前日期，并以“mmddyyyy”格式存储在变量 time_today 中
 time_today = datestr(now, 'mmddyyyy');
-
+%初始化测试参数
 reset_t = 80;
 noise_level = 2.0 * 10 ^ (-2);
 n=200;
 train_t = 150000;
 
 iteration = 10;
-
+%初始化RMSE矩阵
 rmse_set_lorenz = zeros(length(bias_set), iteration);
 rmse_set_circle = zeros(length(bias_set), iteration);
 rmse_set_mg17 = zeros(length(bias_set), iteration);
 rmse_set_infty = zeros(length(bias_set), iteration);
-
+%主循环 - 遍历偏置值
 for bs = 1:length(bias_set)
     bias = bias_set(bs);
+    %初始化各个轨迹类型的RMSE矩阵
     rmse_parfor_set_lorenz = zeros(1, iteration);
     rmse_parfor_set_circle = zeros(1, iteration);
     rmse_parfor_set_mg17 = zeros(1, iteration);
     rmse_parfor_set_infty = zeros(1, iteration);
-    
+    %进行多次迭代
     for repeat_i = 1:iteration
+    %调用 func_train_val 函数，进行训练和验证，返回不同轨迹类型的RMSE。
         [rmse_l, rmse_c, rmse_m, rmse_i, t_repeat_i] = func_train_val(n, train_t, reset_t, noise_level, bias);
+       %存储存储 lorenz 轨迹类型的RMSE
         rmse_parfor_set_lorenz(repeat_i) = rmse_l;
+        %
         rmse_parfor_set_circle(repeat_i) = rmse_c;
+        %
         rmse_parfor_set_mg17(repeat_i) = rmse_m;
+        %
         rmse_parfor_set_infty(repeat_i) = rmse_i;
     end
-    
+    %将每次迭代的结果存储到相应的矩阵中
     rmse_set_lorenz(bs, :) = rmse_parfor_set_lorenz;
     rmse_set_circle(bs, :) = rmse_parfor_set_circle;
     rmse_set_mg17(bs, :) = rmse_parfor_set_mg17;
     rmse_set_infty(bs, :) = rmse_parfor_set_infty;
 end
-
+%存储结果
 save_success_rate.reset_t = reset_t;
 save_success_rate.noise_level = noise_level;
 save_success_rate.n = n;
