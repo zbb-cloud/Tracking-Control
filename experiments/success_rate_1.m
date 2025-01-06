@@ -10,14 +10,16 @@ addpath('./tools/')
 
 % network_set = round(exp(linspace(log(20), log(270), 10)));
 % training_length_set = round(exp(linspace(log(2000), log(150000), 10)));
-
+%设置参数
+%定义重置时间集合
 reset_t_set = round(linspace(10, 150, 10));
+%定义噪声水平集合，
 noise_level_set = 10 .^ linspace(-3, 0, 10);
-
+%获取当前日期，并以“mmddyyyy”格式存储在变量 time_today 中
 time_today = datestr(now, 'mmddyyyy');
 
 
-%% first to test the n_set and train_len_set
+%% 初始化测试参数
 
 % reset_t = 80;
 % noise_level = 2.0 * 10 ^ (-2);
@@ -30,24 +32,29 @@ bias = 2.0;
 % parpool('local',6)
 
 iteration = 50;
-
+%初始化存储不同轨迹类型的RMSE矩阵
 rmse_set_lorenz = zeros(length(reset_t_set), length(noise_level_set), iteration);
 rmse_set_circle = zeros(length(reset_t_set), length(noise_level_set), iteration);
 rmse_set_mg17 = zeros(length(reset_t_set), length(noise_level_set), iteration);
 rmse_set_infty = zeros(length(reset_t_set), length(noise_level_set), iteration);
+%初始化存储运行时间的矩阵
 time_set = zeros(length(reset_t_set), length(noise_level_set), iteration);
-
+%主循环 - 遍历重置时间和噪声水平
+%遍历重置时间集合
 for rts = 1:length(reset_t_set)
+    %获取当前重置时间
     reset_t = reset_t_set(rts);
+    %遍历噪声水平集合
     for nls = 1:length(noise_level_set)
+        %获取当前噪声水平
         noise_level = noise_level_set(nls);
-        
+        %初始化各个轨迹类型的RMSE和时间矩阵
         rmse_parfor_set_lorenz = zeros(1, iteration);
         rmse_parfor_set_circle = zeros(1, iteration);
         rmse_parfor_set_mg17 = zeros(1, iteration);
         rmse_parfor_set_infty = zeros(1, iteration);
         time_parfor_set = zeros(1, iteration);
-        
+        %进行多次迭代
         for repeat_i = 1:iteration
             [rmse_l, rmse_c, rmse_m, rmse_i, t_repeat_i] = func_train_val(n, train_t, reset_t, noise_level, bias);
             rmse_parfor_set_lorenz(repeat_i) = rmse_l;
