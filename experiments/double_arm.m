@@ -1,5 +1,5 @@
 %% clear all
-
+%输入“Y”进入程序
 disp('Preparing for clearing all and restart...')
 m=input('Do you want to continue, Y/N [Y]:', 's');
 if m ~= 'Y'
@@ -15,79 +15,88 @@ addpath('./tools/')
 %% pre training
 dt=0.01;
 % input_infor={'q'};
+%输入包括坐标xy和速度qdt
 input_infor={'xy', 'qdt'};
 % input_infor={'q', 'qdt'};
 % input_infor={'xy', 'qdt', 'q2dt'};
-
 % in-out dimension
+%输入维度 输出维度
 dim_in=length(input_infor) * 4;
 dim_out=2;
 
-% double robot arm properties
+% 双臂机器人的物理属性：质量，长度，质心位置，惯性矩
 m1=1;m2=1;
 l1=0.5;l2=0.5;
 lc1=0.25;lc2=0.25;
 I1=0.03;I2=0.03;
+%储存数组
 properties=[m1, m2, l1, l2, lc1, lc2, I1, I2];
-
+%设置重置时间，训练时间，验证时间，噪声水平，扰动值，测量噪声
 reset_t=80; 
 train_t = 200000;
 val_t=500;
 noise_level=2.0*10^(-2);
-% add pertubations and measurement noise to the model(and uncertainty)
-% proportional to the real value.
 disturbance = 0.00;
 measurement_noise = 0.00;
-
+%超参数和权重初始化
 n=200;
 hyperpara_set = [0.756250, 0.756250, 0.843750, -3.125, 106.71875, 2.0];
+%提取hyperpara_set中的参数
 eig_rho = hyperpara_set(1);
 W_in_a = hyperpara_set(2);
 alpha = hyperpara_set(3);
 beta = 10^hyperpara_set(4);
 k = round( hyperpara_set(5)/200*n);
 kb = hyperpara_set(6);
-
+%初始化输入权重矩阵
 W_in = W_in_a*(2*rand(n,dim_in)-1);
+%生成稀疏对称随机矩阵
 res_net=sprandsym(n,k/n);
+%计算res_net的最大特征值
 eig_D=eigs(res_net,1);
+%调整res_net以满足特征值范围
 res_net=(eig_rho/(abs(eig_D))).*res_net;
+%转化为全矩阵
 res_net=full(res_net);
-
+%计算不同时间段的长度
 section_len=round(reset_t/dt); % 30
 washup_length=round(1002/dt);
 train_length=round(train_t/dt)+round(5/dt); % 50000
 val_length=round(val_t/dt); % 300
 time_length = train_length + 2 * val_length + 3 * washup_length + 100;
-
+%将上面数据储存
 res_infor=struct('W_in', W_in, 'res_net', res_net, 'alpha', alpha, 'kb', kb, 'beta', beta, 'n', n);
 time_infor=struct('section_len', section_len, 'washup_length', washup_length, ...
     'train_length', train_length, 'val_length', val_length, 'time_length', time_length);
 
-% generate training and validation data
+% 生成训练和验证数据
+%调用robot_data_generator函数
 [xy, q, qdt, q2dt, tau] = robot_data_generator(time_infor, noise_level, dt, properties);
 xy=xy(washup_length:end, :);
 q=q(washup_length:end, :);
 qdt=qdt(washup_length:end, :);
 q2dt=q2dt(washup_length:end, :);
 tau=tau(washup_length:end, :);
+%储存
 data_reservoir = struct('xy', xy, 'q', q, 'qdt', qdt, 'q2dt', q2dt, 'tau', tau);
-
+%清除临时变量
 clearvars xy q qdt q2dt tau
 
 %% training
+%调用func_reservoir_train训练模型，并返回输出权重和结束时的状态
 tic;
 [Wout, r_end] = func_reservoir_train(data_reservoir, time_infor, input_infor, res_infor, dim_in, dim_out);
 toc;
-
+%清除
 clearvars data_reservoir
-%% load data
+%% 加载数据
+设置标志，如果是1，加载保存的轨迹数据文件
 load_data = 1;
 if load_data==1
     load('./save_file/all_traj_06282022.mat')
 end
 
-%% validating
+%% 验证模型
 
 rng('shuffle')
 % write the code that can update and pause
@@ -96,10 +105,9 @@ rng('shuffle')
 % traj_type = 'mg17';
 % traj_type = 'mg30';
 % traj_type = 'circle'
-
 failure.type = 'none';
 blur.blur = 0;
-
+%设置不同的验证参数，包括故障类型、模糊、绘图、扰动、测量噪声、轨迹类型和桥接类型。
 plot_val_and_update=1;
 
 disturbance = 0.05;
@@ -110,12 +118,12 @@ traj_type = 'lorenz';
 bridge_type = 'cubic';
 
 time_infor.val_length=250000;
-
+%渲染标志和索引
 save_rend=0;
 idx=1;
-
+%调用函数验证
 val_and_update;
-
+%验证其他轨迹类型
 % idx = 2
 traj_type = 'circle';
 bridge_type = 'cubic';
@@ -148,12 +156,15 @@ idx=4;
 
 val_and_update;
 
-% normal method to calculate rmse
+% 常规方法计算RMSE
+%计算RMSE长度
 rmse_length = 1000/dt;
+%计算实际控制数据和预测数据之间的绝对误差。
 error = abs(data_control(1:rmse_length, :) - data_pred(1:rmse_length, :));
+%计算均方根误差（RMSE）。
 rmse = sqrt(mean(mean(error.^2, 2)));
 
-
+%绘图
 %% plot figure
 
 % start_time = 1;
@@ -277,7 +288,7 @@ rmse = sqrt(mean(mean(error.^2, 2)));
 % end
 
 
-%% save data
+%% 保存数据
 
 % save('./save_file/8d_input_04222022_lorenz_recover_from_failure.mat')
 % save('./save_file/8d_input_04222022_mg17.mat')
@@ -292,7 +303,7 @@ rmse = sqrt(mean(mean(error.^2, 2)));
 % save('./save_file/all_traj_06282022_SI.mat', 'data_reservoir')
 
 
-%% success test
+%% 成功测试
 
 % aa = 1;
 % 
