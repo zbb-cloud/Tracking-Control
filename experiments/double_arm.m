@@ -1,3 +1,4 @@
+%这段代码展示了一个用来训练和验证双臂机器人的控制算法的脚本。它包括了训练数据生成、模型训练、数据验证和绘图的一系列步骤。
 %% clear all
 %输入“Y”进入程序
 disp('Preparing for clearing all and restart...')
