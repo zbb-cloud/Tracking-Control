@@ -1,3 +1,4 @@
+%这段代码定义了一个名为 robot_data_generator 的函数，用于生成双臂机器人在不同时间段内的位置、关节角度、角速度、角加速度和控制信号。
 %函数的输出，包括位置 xy，关节角度 q，角速度 qdt，角加速度 q2dt，以及控制信号 tau。
 %time_infor：包含时间信息的结构体，noise_level：噪声水平，dt：时间步长，properties：双臂机器人的物理属性。
 function [xy, q, qdt, q2dt, tau] = robot_data_generator(time_infor, noise_level, dt, properties)
