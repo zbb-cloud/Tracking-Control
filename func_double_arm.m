@@ -1,3 +1,4 @@
+这段代码定义了一个名为 func_double_arm 的函数，用于评估双臂机器人控制系统在不同轨迹类型下的性能。它通过生成训练和验证数据，训练模型，并计算预测数据和控制数据之间的均方根误差（RMSE）。
 function [] = func_double_arm()
 
 rng('shuffle')
